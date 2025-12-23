@@ -1,6 +1,9 @@
 package cl.cristian.reservas.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "CLIENTES")
@@ -15,15 +18,19 @@ public class Cliente {
     )
     private Long id;
 
+    @NotBlank(message = "El nombre es obligatorio")
+    @Size(min = 2, max = 100, message = "El nombre debe tener entre 2 y 100 caracteres")
     @Column(nullable = false)
     private String nombre;
 
+    @Email(message = "El email no tiene un formato válido")
     @Column(unique = true)
     private String email;
 
+    @Size(max = 20, message = "El teléfono no puede superar los 20 caracteres")
     private String telefono;
 
-    // Constructor vacío (OBLIGATORIO para JPA)
+    // Constructor vacío (JPA)
     public Cliente() {
     }
 
