@@ -23,29 +23,33 @@ public class Cliente {
     @Column(nullable = false)
     private String nombre;
 
+    @NotBlank(message = "El email es obligatorio")
     @Email(message = "El email no tiene un formato válido")
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Size(max = 20, message = "El teléfono no puede superar los 20 caracteres")
+    @Column(length = 20)
     private String telefono;
 
-    // Constructor vacío (JPA)
+    // Constructor vacío (OBLIGATORIO para JPA)
     public Cliente() {
     }
 
-    // Constructor opcional
+    // Constructor de conveniencia (opcional)
     public Cliente(String nombre, String email, String telefono) {
         this.nombre = nombre;
         this.email = email;
         this.telefono = telefono;
     }
 
-    // Getters y Setters
+    // Getters y Setters (OBLIGATORIOS)
     public Long getId() {
         return id;
     }
 
+    // ❌ NO se recomienda setear ID desde fuera
+    // (lo dejo solo para JPA)
     public void setId(Long id) {
         this.id = id;
     }
