@@ -1,15 +1,16 @@
 package cl.cristian.reservas.controller;
 
-import java.util.List;
-
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import cl.cristian.reservas.dto.ClienteRequestDTO;
 import cl.cristian.reservas.dto.ClienteResponseDTO;
+import cl.cristian.reservas.dto.PageResponse;
 import cl.cristian.reservas.service.ClienteService;
 import jakarta.validation.Valid;
+
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,7 +20,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
     name = "Clientes",
     description = "Operaciones CRUD para la gestión de clientes"
 )
-
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {
@@ -30,21 +30,31 @@ public class ClienteController {
         this.service = service;
     }
 
+    // =====================
+    // LISTAR CON FILTROS Y PAGINACIÓN
+    // =====================
     @Operation(
-    summary = "Listar clientes",
-    description = "Obtiene el listado completo de clientes registrados"
+        summary = "Listar clientes",
+        description = "Obtiene el listado de clientes con filtros opcionales y paginación"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Lista de clientes obtenida correctamente")
     })
     @GetMapping
-    public List<ClienteResponseDTO> listar() {
-        return service.listar();
+    public PageResponse<ClienteResponseDTO> listar(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String email,
+            Pageable pageable) {
+
+        return service.listar(nombre, email, pageable);
     }
 
+    // =====================
+    // BUSCAR POR ID
+    // =====================
     @Operation(
-    summary = "Obtener cliente por ID",
-    description = "Busca un cliente específico según su identificador"
+        summary = "Obtener cliente por ID",
+        description = "Busca un cliente específico según su identificador"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente encontrado"),
@@ -55,9 +65,12 @@ public class ClienteController {
         return service.buscarPorId(id);
     }
 
+    // =====================
+    // CREAR
+    // =====================
     @Operation(
-    summary = "Crear cliente",
-    description = "Registra un nuevo cliente en el sistema"
+        summary = "Crear cliente",
+        description = "Registra un nuevo cliente en el sistema"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Cliente creado correctamente"),
@@ -71,9 +84,12 @@ public class ClienteController {
         return service.crear(dto);
     }
 
+    // =====================
+    // ACTUALIZAR
+    // =====================
     @Operation(
-    summary = "Actualizar cliente",
-    description = "Actualiza los datos de un cliente existente"
+        summary = "Actualizar cliente",
+        description = "Actualiza los datos de un cliente existente"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Cliente actualizado"),
@@ -88,9 +104,12 @@ public class ClienteController {
         return service.actualizar(id, dto);
     }
 
+    // =====================
+    // ELIMINAR
+    // =====================
     @Operation(
-    summary = "Eliminar cliente",
-    description = "Elimina un cliente según su ID"
+        summary = "Eliminar cliente",
+        description = "Elimina un cliente según su ID"
     )
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "Cliente eliminado"),

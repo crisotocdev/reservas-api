@@ -1,13 +1,18 @@
 package cl.cristian.reservas.service;
 
-import java.util.List;
+import org.springframework.data.domain.Pageable;
 
 import cl.cristian.reservas.dto.ClienteRequestDTO;
 import cl.cristian.reservas.dto.ClienteResponseDTO;
+import cl.cristian.reservas.dto.PageResponse;
 
 public interface ClienteService {
 
-    List<ClienteResponseDTO> listar();
+    PageResponse<ClienteResponseDTO> listar(
+            String nombre,
+            String email,
+            Pageable pageable
+    );
 
     ClienteResponseDTO buscarPorId(Long id);
 
