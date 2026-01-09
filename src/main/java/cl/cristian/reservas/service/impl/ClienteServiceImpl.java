@@ -1,8 +1,8 @@
 package cl.cristian.reservas.service.impl;
 
-import java.util.Objects;
-
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import cl.cristian.reservas.dto.ClienteRequestDTO;
@@ -23,22 +23,21 @@ public class ClienteServiceImpl implements ClienteService {
         this.repo = repo;
     }
 
-    // =====================
-    // LISTAR CON FILTROS Y PAGINACIÓN
-    // =====================
     @Override
     public PageResponse<ClienteResponseDTO> listar(
-            String nombre,
-            String email,
-            Pageable pageable) {
+            @Nullable String nombre,
+            @Nullable String email,
+            Pageable pageable
+    ) {
+        Page<Cliente> page;
 
-        Objects.requireNonNull(pageable, "pageable no puede ser null");
-
-        var page = (email != null && !email.isBlank())
-                ? repo.findByEmail(email, pageable)
-                : (nombre != null && !nombre.isBlank())
-                    ? repo.findByNombreContainingIgnoreCase(nombre, pageable)
-                    : repo.findAll(pageable);
+        if (email != null && !email.isBlank()) {
+            page = repo.findByEmail(email, pageable);
+        } else if (nombre != null && !nombre.isBlank()) {
+            page = repo.findByNombreContainingIgnoreCase(nombre, pageable);
+        } else {
+            page = repo.findAll(pageable);
+        }
 
         return new PageResponse<>(
                 page.map(ClienteMapper::toDTO).getContent(),
@@ -50,36 +49,20 @@ public class ClienteServiceImpl implements ClienteService {
         );
     }
 
-    // =====================
-    // BUSCAR POR ID
-    // =====================
     @Override
     public ClienteResponseDTO buscarPorId(Long id) {
-        Objects.requireNonNull(id, "id no puede ser null");
         Cliente cliente = getClienteOrThrow(id);
         return ClienteMapper.toDTO(cliente);
     }
 
-    // =====================
-    // CREAR
-    // =====================
     @Override
     public ClienteResponseDTO crear(ClienteRequestDTO dto) {
-        Objects.requireNonNull(dto, "dto no puede ser null");
-
         Cliente cliente = ClienteMapper.toEntity(dto);
-        Cliente saved = repo.save(cliente);
-        return ClienteMapper.toDTO(saved);
+        return ClienteMapper.toDTO(repo.save(cliente));
     }
 
-    // =====================
-    // ACTUALIZAR
-    // =====================
     @Override
     public ClienteResponseDTO actualizar(Long id, ClienteRequestDTO dto) {
-        Objects.requireNonNull(id, "id no puede ser null");
-        Objects.requireNonNull(dto, "dto no puede ser null");
-
         Cliente cliente = getClienteOrThrow(id);
 
         cliente.setNombre(dto.getNombre());
@@ -89,23 +72,14 @@ public class ClienteServiceImpl implements ClienteService {
         return ClienteMapper.toDTO(repo.save(cliente));
     }
 
-    // =====================
-    // ELIMINAR  ✅ (ESTE FALTABA / NO COINCIDÍA)
-    // =====================
     @Override
     public void eliminar(Long id) {
-        Objects.requireNonNull(id, "id no puede ser null");
-
         if (!repo.existsById(id)) {
             throw new ResourceNotFoundException("Cliente no encontrado con id: " + id);
         }
-
         repo.deleteById(id);
     }
 
-    // =====================
-    // MÉTODO PRIVADO
-    // =====================
     private Cliente getClienteOrThrow(Long id) {
         return repo.findById(id)
                 .orElseThrow(() ->
